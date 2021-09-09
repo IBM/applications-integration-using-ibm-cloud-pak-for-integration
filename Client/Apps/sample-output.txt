@@ -1,0 +1,67 @@
+$ ./runClientApps.sh ship001              
+
+App1 - Put message
+Request Message sent by App1:
+
+  JMSMessage class: jms_text
+  JMSType:          null
+  JMSDeliveryMode:  2
+  JMSDeliveryDelay: 0
+  JMSDeliveryTime:  1631008043538
+  JMSExpiration:    0
+  JMSPriority:      4
+  JMSMessageID:     ID:414d5120716d312020202020202020204a011f61013f4f40
+  JMSTimestamp:     1631008043538
+  JMSCorrelationID: null
+  JMSDestination:   queue:///REQUEST.IN
+  JMSReplyTo:       null
+  JMSRedelivered:   false
+    JMSXAppID: App1Put (JMS)               
+    JMSXDeliveryCount: 0
+    JMSXUserID: murali      
+    JMS_IBM_PutApplType: 28
+    JMS_IBM_PutDate: 20210907
+    JMS_IBM_PutTime: 09472494
+<tracking><shipId>ship001</shipId></tracking>
+SUCCESS
+
+
+
+App2 - Get message
+Request Message received by App2: {"tracking":{"shipId":"ship001"}}
+Message ID: ID:414d5120716d312020202020202020204a011f61013f4f40
+
+
+
+App2 - Put message
+Reply Message sent by App2:
+
+  JMSMessage class: jms_text
+  JMSType:          null
+  JMSDeliveryMode:  2
+  JMSDeliveryDelay: 0
+  JMSDeliveryTime:  1631008052591
+  JMSExpiration:    0
+  JMSPriority:      4
+  JMSMessageID:     ID:414d5120716d312020202020202020204a011f6101404f40
+  JMSTimestamp:     1631008052591
+  JMSCorrelationID: ID:414d5120716d312020202020202020204a011f61013f4f40
+  JMSDestination:   queue:///REPLY.IN
+  JMSReplyTo:       null
+  JMSRedelivered:   false
+    JMSXAppID: App2GetPut (JMS)            
+    JMSXDeliveryCount: 0
+    JMSXUserID: murali      
+    JMS_IBM_PutApplType: 28
+    JMS_IBM_PutDate: 20210907
+    JMS_IBM_PutTime: 09473417
+{"tracking":{"lon":"-104.136720","lat":"124.742349","shipId":"ship001"}}
+SUCCESS
+
+
+
+App1 - Get message
+Reply message received by App1: <tracking><lon>-104.136720</lon><lat>124.742349</lat><shipId>ship001</shipId></tracking>
+Reply for request message ID: ID:414d5120716d312020202020202020204a011f61013f4f40
+SUCCESS
+$ 
