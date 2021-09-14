@@ -1,10 +1,24 @@
 # Work in progress
 
-# Applications integration using IBM Cloud Pak for Integration
+# Integrate your on-premises application and Cloud application with IBM Cloud Pak for Integration
 
-IBM Cloud Pak for Integration (CP4I) helps deliver a new, AI-accelerated approach that enables extended teams to meet escalating demand, help reduce costs and increase operational agility with capabilities including API management, application and data integration, messaging and events, high-speed transfer, and end-to-end security. 
+The need for integrating two applications could arise in various scenarios. Two common scenarios are:
+- Application modernization where the modernized part of the application has to be integrated with the legacy application.
+- Hybrid cloud solution deployment where the two different parts of the application has to be integrated.
 
-This code pattern demonstrates how to connect your cloud and on-premises applications and deliver messages reliably with enterprise-grade messaging using [IBM MQ](https://www.ibm.com/docs/en/ibm-mq/9.1) and [App Connect Enterprise](https://www.ibm.com/docs/en/app-connect/11.0.0) components of IBM [Cloud Pak for Integration(CP4I)](https://www.ibm.com/cloud/cloud-pak-for-integration). Consider a shipment tracking scenario. Requester client application sends a request message, in XML format, for shipment status. Responder client application accepts request messages in JSON format and responds with shipment tracking details in JSON format. Communication between requester and responder applications, which are running outside the CP4I cluster, happen asynchronously. IBM MQ is used as the messaging engine, which helps in achieving reliable and secure messaging platform. App Connect Enterprise(ACE) is used as the integration services provider. While ACE delivers a platform that supports the full breadth of integration needs across a modern digital enterprise, in this case it is used to host an application integration flow, developed using [ACE toolkit](https://www.ibm.com/docs/en/app-connect/11.0.0?topic=overview-app-connect-enterprise-toolkit), to transform XML messages to JSON and vice-versa using low-code approach.
+IBM Cloud Pak for Integration (CP4I) has capabilities that includes API management, application and data integration, messaging and events, high-speed transfer, and end-to-end security.
+
+This code pattern demonstrates how to connect your cloud and on-premises applications and deliver messages reliably with enterprise-grade messaging using IBM MQ and App Connect Enterprise components of IBM Cloud Pak for Integration(CP4I). 
+
+In this code pattern, you will look at a shipment tracking scenario. The details are as follows.
+- There are two applications. A requester client application that needs a shipment status information from a responder application. 
+- The requester client application sends a request message, in XML format, for shipment status. 
+- The responder client application accepts request messages in JSON format and responds with shipment tracking details in JSON format. 
+- The communication mechanism between requester and responder applications happen asynchronously
+
+These applications are deployed outside the Cloud Pak for Integration cluster. IBM MQ is used as the messaging engine providing a reliable and secure messaging platform. The App Connect Enterprise(ACE) is used as the integration platform. While ACE delivers a platform that supports the full breadth of integration needs across a modern digital enterprise, in this case it being used for the following:
+- To host an application integration flow (developed using ACE toolkit)
+- To transform XML messages to JSON and vice-versa using low-code approach.
 
 When the reader has completed this pattern, they will understand how to:
 - Setup MQ queue manager security with [TLS](https://www.ibm.com/docs/en/ibm-mq/9.0?topic=mechanisms-tls-security-protocols-in-mq)
@@ -16,14 +30,14 @@ When the reader has completed this pattern, they will understand how to:
 ![](./images/architecture-low-level.png)
 
 ## Flow
-1. App1 puts a shipping tracking request, in XML format, to an MQ queue (REQUEST.IN)
-2. ACE picks App1 request from MQ queue (REQUEST.IN) and transforms XML message to JSON message
+1. Requester app puts a shipping tracking request, in XML format, to an MQ queue (REQUEST.IN)
+2. ACE picks requester app request from MQ queue (REQUEST.IN) and transforms XML message to JSON message
 3. ACE puts the JSON message to an MQ queue (REQUEST.OUT)
-4. App2 picks the JSON message from the MQ queue (REQUEST.OUT) and prepares a response message
-5. App2 puts the response message, in JSON format, to an MQ Queue (REPLY.IN)
+4. Responder app picks the JSON message from the MQ queue (REQUEST.OUT) and prepares a response message
+5. Responder app puts the response message, in JSON format, to an MQ Queue (REPLY.IN)
 6. ACE picks the response message from Queue (REPLY.IN), transforms the message from JSON to XML format
 7. ACE puts the XML response message to an MQ queue (REPLY.OUT)
-8. APP1 picks the response message from the MQ queue (REPLY.OUT)
+8. Requester app picks the response message from the MQ queue (REPLY.OUT)
 
 ## Included Components
 - [IBM Cloud Pak for Integration](https://developer.ibm.com/components/cloud-pak-for-integration/)
@@ -74,10 +88,10 @@ You will be prompted to enter some information. Enter whatever you like. An exam
 Country Name (2 letter code) []:IN
 State or Province Name (full name) []:KA
 Locality Name (eg, city) []:BLR
-Organization Name (eg, company) []:IBM
-Organizational Unit Name (eg, section) []:ISL
-Common Name (eg, fully qualified host name) []:in.ibm.com
-Email Address []:abc@ibm.com
+Organization Name (eg, company) []:Example
+Organizational Unit Name (eg, section) []:Abc
+Common Name (eg, fully qualified host name) []:example.com
+Email Address []:abc@example.com
 ```
 
 Verify the certificate has been created successfully with this command:
@@ -91,7 +105,7 @@ openssl req -newkey rsa:2048 -nodes -keyout client.key -x509 -days 365 -out clie
 ```
 
 ### 3. Create an instance of MQ Queue Manager in CP4I
-Applications, outside of the CP4I cluster, access MQ in CP4I. This requires TLS to be set up while the MQ queue manager is being created. The self signed certificates we created will be used to create secrets in our OpenShift cluster. These secrets will be used while creating an instance of Queue Manager.
+The MQ in Cloud Pak For Integration cluster is accessed by applications that are deployed outside the cluster. This requires TLS to be set up while the MQ queue manager is being created. The self signed certificates we created will be used to create secrets in our OpenShift cluster. These secrets will be used while creating an instance of Queue Manager.
 
 #### 3.1 Set up TLS Certificates for MQ Deployment
 For the sake of this code pattern, the CP4I instance is deployed in a namespace called `cp4i`.
@@ -201,7 +215,7 @@ Launch CP4I platform Navigator
 ![](./images/launch-qm-adminui.png)
 Under `Details` tab, click the link `Platform Navigator UI` to launch platform navigator.
 
-The first time you attempt to access the MQ console a warning will appear regarding the certificate. This can be accepted as it is normally due to a self-signed certificate, or a unknow certificate authority. In a real production environment this would commonly be configured with a certificate that would be known by the browser.
+The first time you attempt to access the MQ console a warning will appear regarding the certificate. This can be accepted as it is normally due to a self-signed certificate, or a unknown certificate authority. In a real production environment this would commonly be configured with a certificate that would be known by the browser.
 
 1. Login to IBM Automation using the `IBM provided credentials (admin only)`. This will be the credentials that was provided when deploying Cloud Pak for Integration. Under `Messaging` tile, click the queue manager that you created in previous step [Create an instance of MQ Queue Manager](#32-create-an-instance-of-mq-queue-manager). Queue Manager home page is displayed.
 
@@ -244,7 +258,7 @@ The first time you attempt to access the MQ console a warning will appear regard
 `REPLY.IN.FAILURE`
 `REPLY.OUT.FAILURE`
 
-Make sure that you `Refresh Security` of the Queue Manager after making the security related changes. To refresh the security, go to the Queue Manager configuration and refresh all three types of securities, one by one
+Make sure that you `Refresh Security` of the Queue Manager after making the security related changes. Go to the Queue Manager configuration and refresh all three types of securities one after another.
 ![](./images/refresh-security.png)
 
 7. Get connection details
@@ -263,7 +277,7 @@ This is an example of the channel based SNI mapping:
 
 Use this link to determine the SNI Mapping: [How does MQ provide multiple certificates (CERTLABL) capability](https://www.ibm.com/support/pages/ibm-websphere-mq-how-does-mq-provide-multiple-certificates-certlabl-capability)
 
-We additionally need to create a route for each channel we want to connect to. The HostName of the new route will be the name of the channel mapped to it's SNI format (using the SNI mapping rules) with the suffix chl.mq.ibm.com
+We additionally need to create a route for each channel we want to connect to. The HostName of the new route will be the name of the channel mapped to it's SNI format (using the SNI mapping rules) with the suffix chl.mq.ibm.com.
 
 Use the following yaml to create the correct route for DEV.APP.SVRCONN
 From a terminal, logon to your OpenShift cluster and run the below command
@@ -288,7 +302,7 @@ spec:
 EOF
 ```
 
-Use `oc get routes -n cp4i` to verify that the above route is created
+Use `oc get routes -n cp4i` to verify that the above route is created.
 
 ### 6. Deploy ACE flows
 Ensure that App Connect is deployed in the CP4I instance that you are using.
@@ -316,9 +330,9 @@ To send/receive messages to/from MQ queues, sample applications are provided in 
 
 ![](./images/java-files.png)
 
-- `App1Put.java` puts a shipping tracking request message, in XML format, to the queue REQUEST.IN
-- `App2GetPut.java` takes JSON request message from REQUEST.OUT. It builds a response message, in JSON format, and puts the response message in REPLY.IN queue.
-- `App1Get.java` gets response message, in XML format, from REPLY.OUT queue
+- `RequestorPUT.java` puts a shipping tracking request message, in XML format, to the queue REQUEST.IN
+- `ResponderGetPut.java` takes JSON request message from REQUEST.OUT. It builds a response message, in JSON format, and puts the response message in REPLY.IN queue.
+- `RequestorGET.java` gets response message, in XML format, from REPLY.OUT queue
 - `Constants.java` holds connection details to queue manager.
 
 Update connection details in Constants.java file. You can get connection details as explained in section [Configure MQ instance for TLS](#4-configure-mq-instance-for-tls).
@@ -326,7 +340,7 @@ Update connection details in Constants.java file. You can get connection details
 **Create a client keystore**
 The Java JMS application should provide valid certificate details for it to communicate with Queue Manager. In earlier step [Create self signed certificates for server and Client](#21-create-self-signed-certificates-for-server-and-client) we created server key and certificate. We will create a client keystore using that server certificate. We will use keytool (a Java security tool), which is included with Java JREs and SDKs.
 
-On a terminal window change directory to where `server.key` and `server.crt` are placed. To create a .jks client keystore and import our sever certificate into it, run the following command in the terminal:
+On a terminal window change directory to where `server.key` and `server.crt` are placed. To create a .jks client keystore and import our server certificate into it, run the following command in the terminal:
 ```
 keytool -keystore clientkey.jks -storetype jks -importcert -file server.crt -alias server-certificate
 ```
@@ -345,10 +359,10 @@ cd <cloned repo parent directory>/Client/Apps/
 ```
 
 Observe the console log messages. You will notice that 
-1. App1 puts a request message, in XML format, with the shipment number provided, to the queue REQUEST.IN
-2. App2 picks the request message, in JSON format, from the queue REQUEST.OUT
-3. App2 sends a response message, in JSON format, to the queue REPLY.IN
-4. App1 picks the response message, in XML format, from the queue REPLY.OUT
+1. Requestor app puts a request message, in XML format, with the shipment number provided, to the queue REQUEST.IN
+2. Responder app picks the request message, in JSON format, from the queue REQUEST.OUT
+3. Responder app sends a response message, in JSON format, to the queue REPLY.IN
+4. Requestor app picks the response message, in XML format, from the queue REPLY.OUT
 
 >Note: For demonstration purpose these apps exit after they find messages in MQ queue or 15 seconds, whichever is sooner. In real scenarios the applications constantly monitor queues for messages and could process multiple messages. 
 

@@ -16,18 +16,11 @@
 
 package com.ibm.mq.samples.jms;
 
-
-import java.text.DecimalFormat;
-
 import javax.jms.Destination;
-import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.JMSProducer;
-import javax.jms.Message;
 import javax.jms.TextMessage;
-
-import org.json.JSONObject;
 
 import com.ibm.msg.client.jms.JmsConnectionFactory;
 import com.ibm.msg.client.jms.JmsFactoryFactory;
@@ -53,14 +46,12 @@ import com.ibm.msg.client.wmq.WMQConstants;
  * JNDI in use: No
  *
  */
-public class App2GetPut{
+public class RequestorPUT {
 
 	// System exit status value (assume unset value to be 1)
 	private static int status = 1;
 
-	// Create variables for the connection to MQ
-	private static final String IN_QUEUE_NAME = "REQUEST.OUT"; // Queue that the application uses to put and get messages to and from
-	private static final String OUT_QUEUE_NAME = "REPLY.IN"; // Queue that the application uses to put and get messages to and from
+	private static final String QUEUE_NAME = "REQUEST.IN"; // Queue that the application uses to put and get messages to and from
 
 
 	/**
@@ -71,16 +62,13 @@ public class App2GetPut{
 	public static void main(String[] args) {
 		
 		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		System.out.println("App2 - Get message");
-
+		System.out.println("Requestor app - Put message");
 
 		// Variables
 		JMSContext context = null;
 		Destination destination = null;
-		JMSConsumer consumer = null;
 		JMSProducer producer = null;
+
 
 
 		try {
@@ -94,42 +82,23 @@ public class App2GetPut{
 			cf.setStringProperty(WMQConstants.WMQ_CHANNEL, Constants.CHANNEL);
 			cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT);
 			cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, Constants.QMGR);
-			cf.setStringProperty(WMQConstants.WMQ_APPLICATIONNAME, "App2GetPut (JMS)");
+			cf.setStringProperty(WMQConstants.WMQ_APPLICATIONNAME, "App1Put (JMS)");
 			cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true);
 			cf.setStringProperty(WMQConstants.WMQ_SSL_CIPHER_SUITE, "TLS_RSA_WITH_AES_128_CBC_SHA256");
 
 			// Create JMS objects
 			context = cf.createContext();
-			destination = context.createQueue("queue:///" + IN_QUEUE_NAME);
+			destination = context.createQueue("queue:///" + QUEUE_NAME);
 
-			consumer = context.createConsumer(destination); // autoclosable
-			Message inMessage = consumer.receive(2000); // in ms or 15 seconds
-			String msgID = inMessage.getJMSMessageID();
-			String requestBody = inMessage.getBody(String.class);
-			
-			System.out.println("Request Message received by App2: " + requestBody);
-			System.out.println("Message ID: " + msgID);
-			
-			JSONObject responseJSON = new JSONObject(requestBody);
-			((JSONObject)responseJSON.get("tracking")).put("lat", new DecimalFormat("#.000000").format(Math.random()*361-180));
-			((JSONObject)responseJSON.get("tracking")).put("lon", new DecimalFormat("#.000000").format(Math.random()*361-180));
-			//System.out.println("Response json = " + responseJSON.toString());
-			
-			System.out.println("");
-			System.out.println("");
-			System.out.println("");
-			System.out.println("App2 - Put message");
-			
+			String input = "<tracking><shipId>" + args[0] + "</shipId></tracking>";
+			TextMessage message = context.createTextMessage(input);
 
-			destination = context.createQueue("queue:///" + OUT_QUEUE_NAME);
-			TextMessage message = context.createTextMessage(responseJSON.toString());
-			
-			message.setJMSCorrelationID(msgID);
 			producer = context.createProducer();
 			producer.send(destination, message);
-			
-			System.out.println("Reply Message sent by App2:\n" + message);
+		
+			System.out.println("Request Message sent by Requestor App:\n" + message);
 
+			//sc.close();
             context.close();
 
 			recordSuccess();
@@ -140,7 +109,6 @@ public class App2GetPut{
 		System.exit(status);
 
 	} // end main()
-	
 
 	/**
 	 * Record this run as successful.

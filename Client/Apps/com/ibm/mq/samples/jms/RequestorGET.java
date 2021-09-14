@@ -47,7 +47,7 @@ import com.ibm.msg.client.wmq.WMQConstants;
  * JNDI in use: No
  *
  */
-public class App1Get{
+public class RequestorGET{
 
 	// System exit status value (assume unset value to be 1)
 	private static int status = 1;
@@ -66,7 +66,7 @@ public class App1Get{
 		System.out.println("");
 		System.out.println("");
 		System.out.println("");
-		System.out.println("App1 - Get message");
+		System.out.println("Requestor app - Get message");
 
 		// Variables
 		JMSContext context = null;
@@ -98,7 +98,7 @@ public class App1Get{
 			//String msgID = inMessage.getJMSMessageID();
 			String requestBody = inMessage.getBody(String.class);
 			
-			System.out.println("Reply message received by App1: " + requestBody);
+			System.out.println("Reply message received by Requestor app: " + requestBody);
 			System.out.println("Reply for request message ID: " + inMessage.getJMSCorrelationID());
 			//System.out.println("Message ID: " + msgID);
 			
