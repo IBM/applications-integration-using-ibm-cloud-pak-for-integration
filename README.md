@@ -57,7 +57,7 @@ When the reader has completed this pattern, they will understand how to:
 ## Steps
 1. [Clone the repository](#1-clone-the-repository)
 2. [Create TLS objects](#2-create-tls-objects)
-3. [Create an instance of MQ Queue Manager](#3-create-an-instance-of-mq-queue-manager)
+3. [Create an instance of MQ Queue Manager](#3-create-an-instance-of-mq-queue-manager-in-cp4i)
 4. [Configure MQ instance for TLS](#4-configure-mq-instance-for-tls)
 5. [Connect to your MQ instance from outside the cluster](#5-connect-to-your-mq-instance-from-outside-the-cluster)
 6. [Deploy ACE flows](#6-deploy-ace-flows)
