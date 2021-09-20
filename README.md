@@ -1,5 +1,3 @@
-# Work in progress
-
 # Integrate your on-premises application and Cloud application with IBM Cloud Pak for Integration
 
 The need for integrating two applications could arise in various scenarios. Two common scenarios are:
