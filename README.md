@@ -96,7 +96,7 @@ Email Address []:abc@example.com
 
 Verify the certificate has been created successfully with this command:
 ```
-openssl x509 -text -noout -in key.crt
+openssl x509 -text -noout -in server.crt
 ```
 
 Similarly create self signed certificate for the client using the below command
@@ -133,6 +133,7 @@ For the sake of this code pattern, the CP4I instance is deployed in a namespace 
 - Secret Name: `mq-client`
 - Key: tls.crt
 - Value: Click `Browse` and select client.crt that was generated in step [Clone the repository](#1-clone-the-repository)
+> tls.key and tls.crt will be created for mq-server, whereas, only tls.crt will be created for mq-client. 
 
 #### 3.2 Create an instance of MQ Queue Manager
 1. Navigate to OpenShift console (where CP4I is deployed)
@@ -147,14 +148,18 @@ For the sake of this code pattern, the CP4I instance is deployed in a namespace 
 - Accept license
 ![](./images/mq-form-1.png)
 - Click `Advanced Configuration` at the end of the page
-- Click on `PKI` -> `Keys` -> `Secret` -> `Advanced configuration` -> `Items` -> `Add Item`. Enter `Value` as `tls.key`. 
+- Click on `PKI` -> `Keys` -> expand `Secret` -> `Advanced configuration` -> `Items` -> `Add Item`. Enter `Value` as `tls.key`. 
 - Click `Add Item` link below. Enter `Value` as tls.crt. Select Secret `mq-server` from the dropdown.
 ![](./images/mq-tls-config.png)
 - Click `Advanced Configuration` below and enter `Name` as `default`
-- Next click on `Trust` -> `Secret` -> `Add Item. Enter `Value` as `tls.crt`
+- Next click on `Trust` -> expand `Secret` -> `Add Item. Enter `Value` as `tls.crt`
 - Under `Secret name` dropdown select `mq-client`
 - Click `Advanced Configuration` below and enter `Name` ad `label2`
 - Scroll to the top of the page and select `YAML view` option. It should look as shown below. Make further changes, if required, either in form view or YAML view.
+
+![](./images/qm1-create.gif)
+
+Alternatively, copy paste the below yaml content in yaml view and make necessary changes wherever required.
 ```
 apiVersion: mq.ibm.com/v1beta1
 kind: QueueManager
@@ -201,6 +206,7 @@ spec:
 Queue Manager should be created and be in running status
 ![](./images/qm-running.png)
 
+> If there is any issue with data provided for creating a queue manager, then the status of queue manager remains pending even after several minutes. In such a case it is recommended to delete the queue manager and create a new one nesuring you provide correct data.
 
 ### 4. Configure MQ instance for TLS
 
@@ -264,7 +270,7 @@ Make sure that you `Refresh Security` of the Queue Manager after making the secu
 7. Get connection details
 - Go to queue manager configuration. Under `Actions`, click `Download connection file`
 - Under `Select a queue manager`, select the queue manager qm1. Under `Select an application channel` select the channel `DEV.APP.SVRCONN`. Under `Select a cipher specification` select `ANY_TLS12`
-- Click next and make a note of hostname and port. These details are required later for client applications to connect to MQ.
+- Click next and make a note of hostname and port. These details are required later for client applications to connect to MQ. Then Click on next and click create.
 
 
 ### 5. Connect to your MQ instance from outside the cluster
@@ -302,25 +308,24 @@ spec:
 EOF
 ```
 
-Use `oc get routes -n cp4i` to verify that the above route is created.
+Use `oc get route -n cp4i | grep qm1-ibm-mq-qm-traffic-dev` to verify that the above route is created.
 
 ### 6. Deploy ACE flows
-Ensure that App Connect is deployed in the CP4I instance that you are using.
-![](./images/operator-app-connect.png)
+Ensure that App Connect is deployed in the CP4I instance that you are using. To verify, goto Operators > Installed Operators and search for App Connect. You should  see the App Connect operator
 
 ACE flow will be deployed as a bar file. A bar file, appint.bar, is provided and can be found under the folder `<cloned repo parent directory>/ACE`. There are two flows in the bar file. One flow transforms XML message to JSON (request flow) and the other flow transforms JSON message to XML (response flow). 
 
 The bar file is preconfigured with default values used in this code pattern to connect to MQ. The appint.bar file won't work as exptected if the names of Queue manager, queues and channel are different from the ones used in this code pattern.
 
-Launch CP4I platform Navigator as explained in section [Configure MQ instance for TLS](#4-configure-mq-instance-for-tls). In platform navigator dashboard, under `Integrations` tile, click on the entry available there. App Connect Dashboard opens.
+Launch CP4I platform Navigator as explained in section [Configure MQ instance for TLS](#4-configure-mq-instance-for-tls). In platform navigator dashboard, under `Integrations` tile, click on the entry available there, something like `db-01-quickstart`. App Connect Dashboard opens.
 
-- Click on the tile `Create a server`. 
-- Select the tile `Quick start toolkit integration`. Click `Next`
-- You need to provide a bar file. You can either drag and drop or click on the `Drag and drop a BAR file or click to upload` link.
-- Upload the bar file `appint` placed in `<cloned repo parent directory>/ACE` folder
-- Click `Next`. Again click `Next`.
-- You may leave the default settings and click `Create`
+- Click on the tile `Create a server` and enter the following specifications:
+- **Types** - `Quick start toolkit integration`. Click `Next`
+- **Integrations** - You need to provide a bar file. You can either drag and drop or click on the `Drag and drop a BAR file or click to upload` link. Upload the bar file `appint` placed in `<cloned repo parent directory>/ACE` folder. Click `Next`. 
+- **Configurations** - Skip and click next
+- **Server** - You may leave the default settings and click `Create`
 ![](./images/is-02.gif)
+
 - The integration server will take a few minutes to start. Wait for 3-4 minutes and refresh the browser page. The status of integration server should be `Ready`
 
 ![](./images/is-status.png)
@@ -342,17 +347,15 @@ The Java JMS application should provide valid certificate details for it to comm
 
 On a terminal window change directory to where `server.key` and `server.crt` are placed. To create a .jks client keystore and import our server certificate into it, run the following command in the terminal:
 ```
-keytool -keystore clientkey.jks -storetype jks -importcert -file server.crt -alias server-certificate
+keytool -keystore ../ClientKey/clientkey.jks -storetype jks -importcert -file server.crt -alias server-certificate
 ```
-You will be prompted to create a password. Be sure to remember the password that you set as you’ll need it later on.
-
-Move the clientkey.jks file into `<cloned repo parent directory>/Client/ClientKey`. You can place it in any new folder that you like, but for the script to run, place it in the folder mentioned. 
+You will be prompted to create a password. Be sure to remember the password that you set as you’ll need it later on. Also, you are prompted whether to trust the certificate. Type yes and hit enter. `Trust this certificate? [no]:  yes`. 
 
 Now that the client keystore is available, let us run the application. 
 
 There is a script `<cloned repo parent directory>/Client/Apps/runClientApps.sh` which will compile and run these java files. This script takes 2 arguments. First argument is a shipment number, it can be any string for the purpose of this demo. The second argument is the password that you specified while creating client kaystore (.jks file).
 
-On a terminal window, change directory to Client/Apps folder of the cloned git repository and run the script
+On a terminal window, change directory to ``<cloned repo parent directory>/Client/Apps` folder of the cloned git repository and run the script. 
 ```
 cd <cloned repo parent directory>/Client/Apps/
 ./runClientApps.sh ship001 <password>
