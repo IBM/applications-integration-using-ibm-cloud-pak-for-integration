@@ -16,15 +16,15 @@
 
 package com.ibm.mq.samples.jms;
 
+import com.ibm.msg.client.jms.JmsConnectionFactory;
+import com.ibm.msg.client.jms.JmsFactoryFactory;
+import com.ibm.msg.client.wmq.WMQConstants;
 import javax.jms.Destination;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.JMSProducer;
 import javax.jms.TextMessage;
 
-import com.ibm.msg.client.jms.JmsConnectionFactory;
-import com.ibm.msg.client.jms.JmsFactoryFactory;
-import com.ibm.msg.client.wmq.WMQConstants;
 
 /**
  * A minimal and simple application for Point-to-point messaging.
@@ -82,7 +82,7 @@ public class RequestorPUT {
 			cf.setStringProperty(WMQConstants.WMQ_CHANNEL, Constants.CHANNEL);
 			cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT);
 			cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, Constants.QMGR);
-			cf.setStringProperty(WMQConstants.WMQ_APPLICATIONNAME, "App1Put (JMS)");
+			cf.setStringProperty(WMQConstants.WMQ_APPLICATIONNAME, "RequestorPut (JMS)");
 			cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true);
 			cf.setStringProperty(WMQConstants.WMQ_SSL_CIPHER_SUITE, "TLS_RSA_WITH_AES_128_CBC_SHA256");
 

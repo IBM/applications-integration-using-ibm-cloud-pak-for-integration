@@ -17,8 +17,10 @@
 package com.ibm.mq.samples.jms;
 
 
+import com.ibm.msg.client.jms.JmsConnectionFactory;
+import com.ibm.msg.client.jms.JmsFactoryFactory;
+import com.ibm.msg.client.wmq.WMQConstants;
 import java.text.DecimalFormat;
-
 import javax.jms.Destination;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
@@ -26,12 +28,10 @@ import javax.jms.JMSException;
 import javax.jms.JMSProducer;
 import javax.jms.Message;
 import javax.jms.TextMessage;
-
 import org.json.JSONObject;
 
-import com.ibm.msg.client.jms.JmsConnectionFactory;
-import com.ibm.msg.client.jms.JmsFactoryFactory;
-import com.ibm.msg.client.wmq.WMQConstants;
+
+
 
 /**
  * A minimal and simple application for Point-to-point messaging.
@@ -94,7 +94,7 @@ public class ResponderGetPut{
 			cf.setStringProperty(WMQConstants.WMQ_CHANNEL, Constants.CHANNEL);
 			cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT);
 			cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, Constants.QMGR);
-			cf.setStringProperty(WMQConstants.WMQ_APPLICATIONNAME, "App2GetPut (JMS)");
+			cf.setStringProperty(WMQConstants.WMQ_APPLICATIONNAME, "ResponderGetPut (JMS)");
 			cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true);
 			cf.setStringProperty(WMQConstants.WMQ_SSL_CIPHER_SUITE, "TLS_RSA_WITH_AES_128_CBC_SHA256");
 
