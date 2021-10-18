@@ -1,6 +1,6 @@
 # Integrate your on-premises applications with IBM Cloud Pak for Integration
 
-This code pattern demonstrates how to connect your cloud and on-premises applications and deliver messages reliably with enterprise-grade messaging and integration features of IBM Cloud Pak for Integration(CP4I). 
+[This code pattern](code pattern overview on IBM Developer) demonstrates how to connect your cloud and on-premises applications and deliver messages reliably with enterprise-grade messaging and integration features of IBM Cloud Pak for Integration(CP4I). 
 
 In this code pattern, you will look at a shipment tracking scenario. The details are as follows.
 - There are two client applications, a requestor application and a responder applications. The requester client application requests for shipment tracking data. And the responder application provides shipment tracking data. 
