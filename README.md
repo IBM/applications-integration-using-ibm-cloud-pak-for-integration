@@ -1,11 +1,5 @@
 # Integrate your on-premises applications with IBM Cloud Pak for Integration
 
-The need for integrating two applications could arise in various scenarios. Two common scenarios are:
-- Application modernization where the modernized part of the application has to be integrated with the legacy application.
-- Hybrid cloud solution deployment where the two different parts of the application has to be integrated.
-
-IBM Cloud Pak for Integration (CP4I) has capabilities that includes API management, application and data integration, messaging and events, high-speed transfer, and end-to-end security.
-
 This code pattern demonstrates how to connect your cloud and on-premises applications and deliver messages reliably with enterprise-grade messaging and integration features of IBM Cloud Pak for Integration(CP4I). 
 
 In this code pattern, you will look at a shipment tracking scenario. The details are as follows.
@@ -36,13 +30,6 @@ When the reader has completed this pattern, they will understand how to:
 6. App integration flow picks the response message from Queue (REPLY.IN), transforms the message from JSON to XML format.
 7. App integration flow puts the XML response message to an MQ queue (REPLY.OUT).
 8. Requester app picks the response message from the MQ queue (REPLY.OUT).
-
-## Included Components
-- [IBM Cloud Pak for Integration](https://developer.ibm.com/components/cloud-pak-for-integration/)
-
-## Featured technologies
-- [Java](https://developer.ibm.com/components/java-platform/)
-- [TLS security protocols in IBM MQ](https://www.ibm.com/docs/en/ibm-mq/9.0?topic=mechanisms-tls-security-protocols-in-mq)
 
 ## Prerequisites
 - [IBM Cloud Pak for Integration (CP4I) v2021.2.1-0](https://cloud.ibm.com/docs/cloud-pak-integration?topic=cloud-pak-integration-getting-started)
