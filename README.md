@@ -59,7 +59,7 @@ git clone https://github.com/IBM/applications-integration-using-ibm-cloud-pak-fo
 ### 2. Create TLS objects
 TLS is used in MQ to secure channels. The TLS handshake enables the TLS client and server to establish the secret keys with which they communicate. Let us create a self-signed certificate and extract the public key from it for the client to use. A self-signed certificate is signed with its own private key.
 
-#### 2.1 Create self signed certificates for server and client
+#### 2.1 Create self signed certificates for server
 
 In a terminal window, change directory to parent folder of cloned repository.
 
@@ -84,11 +84,6 @@ Verify the certificate has been created successfully with this command:
 openssl x509 -text -noout -in server.crt
 ```
 
-Similarly create self signed certificate for the client using the below command
-```
-openssl req -newkey rsa:2048 -nodes -keyout client.key -x509 -days 365 -out client.crt
-```
-
 ### 3. Create an instance of MQ Queue Manager in CP4I
 The MQ in Cloud Pak For Integration cluster is accessed by applications that are deployed outside the cluster. This requires TLS to be set up while the MQ queue manager is being created. The self signed certificates we created will be used to create secrets in our OpenShift cluster. These secrets will be used while creating an instance of Queue Manager.
 
@@ -110,15 +105,6 @@ For the sake of this code pattern, the CP4I instance is deployed in a namespace 
 5. Click `Create`.
 ![](./images/create-secrets.png)
 
-**Create Client Secret**
-1. Navigate to OpenShift console (where CP4I is deployed).
-2. Click on `Workloads` -> `Secrets`. Select project `cp4i`.
-3. Click on `Create` -> `Key/value secret`.
-4. Fill the form as the following information:
-- Secret Name: `mq-client`.
-- Key: `tls.crt`.
-- Value: Click `Browse` and select client.crt that was generated in step [Clone the repository](#1-clone-the-repository).
-> tls.key and tls.crt will be created for mq-server, whereas, only tls.crt will be created for mq-client. 
 
 #### 3.2 Create an instance of MQ Queue Manager
 1. Navigate to OpenShift console (where CP4I is deployed).
@@ -140,9 +126,6 @@ For the sake of this code pattern, the CP4I instance is deployed in a namespace 
 - Click `Add Item` link below. Enter `Value` as tls.crt. Select Secret `mq-server` from the dropdown.
 ![](./images/mq-tls-config.png)
 - Click `Advanced Configuration` below and enter `Name` as `default`.
-- Next click on `Trust` -> expand `Secret` -> `Add Item. Enter `Value` as `tls.crt`.
-- Under `Secret name` dropdown select `mq-client`.
-- Click `Advanced Configuration` below and enter `Name` ad `label2`.
 - Scroll to the top of the page and select `YAML view` option. It should look as shown below. Make further changes, if required, either in form view or YAML view.
 
 ![](./images/qm1-create.gif)
@@ -167,12 +150,6 @@ spec:
             - tls.key
             - tls.crt
           secretName: mq-server
-    trust:
-      - name: label2
-        secret:
-          items:
-            - tls.crt
-          secretName: mq-client
   web:
     enabled: true
   version: 9.2.2.0-r1
@@ -247,7 +224,6 @@ A channel is a logical communication link, used by distributed queue managers, b
 4. Configure channel
 - On the queue manager console, view configuration of the just created channel.
 ![](./images/channel-view-config.png)
-- Under `Select a queue manager`, select the queue manager qm1. Under `Select an application channel` select the channel `DEV.APP.SVRCONN`. Under `Select a cipher specification` select `ANY_TLS12`.
 - Click `Edit` and select `SSL` on the left menu items. Under `SSL Cipher spec`, selection the option `ANY_TLS12`. Select `Optional` for `SSL Authentication`.
 
 `SSL Cipher spec` - specifies the encryption strength and function (CipherSpec). The CipherSpec must match at both ends of channel. The client and the queue manager.
